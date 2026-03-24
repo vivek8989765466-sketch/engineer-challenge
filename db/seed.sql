@@ -73,6 +73,25 @@ CREATE INDEX idx_models_status ON models(status);
 
 -- YOUR SQL GOES BELOW THIS LINE
 
+CREATE TABLE deployments (
+  id UUID PRIMARY KEY DEFAULT get_random_uuid(),
+  model_id UUID NOT NULLL ,
+  enviorement VARCHAR(20) NOT NULL CHECK (enviorement IN ('active' , 'staging','production')),
+  deployed_by UUID NOT NULL,
+  deployed_at TIMESTAMPTZ DEFAULT NOW(),
+  status VARACHAR(20) NOT NULL DEFAULT 'active' CHECK  (status IN ('development' , 'inactive','failed')),
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT fk_deployments_model_id FOREIGN KEY (model_id),
+  REFERENCES user(id) DELETE CASCADE,
+  CONSTRAINT uq_deployment_model_enviorement UNIQUE(model_id,enviorement)
+);
+
+CREATE INDEX idx_developement_model_id ON deployement (model_id);
+CREATE INDEX idx_developement_deployment_id ON deployements (deployed_by);
+CREATE INDEX idx_developement_enviorment ON deployements (enviorement);
+CREATE INDEX idx_developement_status ON deployements (status);
+
 
 
 -- ============================================================================
