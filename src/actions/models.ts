@@ -1,11 +1,11 @@
-'use server';
+"use server";
 
 /* eslint-disable @typescript-eslint/no-unused-vars -- imports are for your implementation */
-import { revalidatePath } from 'next/cache';
-import { query } from '@/lib/db';
-import { addModelSchema } from '@/lib/validations';
-import { getUserId } from '@/lib/auth';
-import type { Model } from '@/lib/types';
+import { revalidatePath } from "next/cache";
+import { query } from "@/lib/db";
+import { addModelSchema } from "@/lib/validations";
+import { getUserId } from "@/lib/auth";
+import type { Model } from "@/lib/types";
 // ============================================================================
 // CHALLENGE TASK 3: Complete the addModel server action
 // ============================================================================
@@ -33,5 +33,30 @@ export async function addModel(
   formData: FormData,
 ): Promise<{ success: true } | { error: string }> {
   // TODO: Your implementation here
-  return { error: 'Not implemented' };
+  const userId = await getUserId();
+  console.log("user", userId);
+  if (!userId) {
+    return { error: "User not authenticated" };
+  }
+
+  const rawData = {
+    name: formData.get("name"),
+    model_id: formData.get("model_id"),
+    provider_id: formData.get("provider_id"),
+    context_window: formData.get("context_window"),
+    status: formData.get("status"),
+    notes: formData.get("notes"),
+  };
+
+  const validation = addModelSchema.safeParse(rawData);
+  if (!validation.success) {
+    const errors = validation.error?.errors
+      ?.map((err) => err.message)
+      .join(", ");
+    console.log("errors", errors);
+
+    return { error: `validation error ${errors}` };
+  }
+
+  return { error: "Not implemented" };
 }
